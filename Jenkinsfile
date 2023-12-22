@@ -12,14 +12,14 @@ pipeline {
         
         stage('Docker Build') {
             steps {
-                sh "docker build . -t chinnareddaiah/hiring:${commit_id()}"
+                sh "docker build . -t bussar/hiring:${commit_id()}"
             }
         }
         stage('Docker Push') {
             steps {
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'hubPwd')]) {
-                    sh "docker login -u chinnareddaiah -p ${hubPwd}"
-                    sh "docker push chinnareddaiah/hiring:${commit_id()}"
+                withCredentials([string(credentialsId: 'docker', variable: 'cred')]) {
+                    sh "docker login -u bussar -p ${cred}"
+                    sh "docker push bussar/hiring:${commit_id()}"
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 sshagent(['docker-host']) {
                     sh "ssh -o StrictHostKeyChecking=no  ec2-user@172.31.36.37 docker rm -f hiring"
-                    sh "ssh  ec2-user@172.31.36.37 docker run -d -p 8080:8080 --name hiring chinnareddaiah/hiring:${commit_id()}"
+                    sh "ssh  ec2-user@172.31.36.37 docker run -d -p 8080:8080 --name hiring bussar/hiring:${commit_id()}"
                 }
             }
         }
